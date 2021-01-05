@@ -34,4 +34,12 @@ class UpdateUsersRequest extends FormRequest
             'phone' => 'nullable|numeric|digits:10'
         ];
     }
+
+    public function messages()
+    {
+        return [
+            'password.regex'  => 'Password contain, At least 1 capital letter, At least 1 lowercase letter, At least 1 special character, At least 1 numeric character',
+            'username.regex'  => 'Username have, At least 1 letter, At least 1 numeric character',
+        ];
+    }
 }

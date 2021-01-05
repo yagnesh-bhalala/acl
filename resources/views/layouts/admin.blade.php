@@ -59,7 +59,13 @@
         <main class="main">
 
 
-            <div style="padding-top: 20px" class="container-fluid">
+            <div style="padding-top: 20px" class="container-fluid">              
+
+                @if (\Session::has('success'))
+                <div class="alert alert-success">
+                    <p>{{ \Session::get('success') }}</p>
+                </div><br />
+                @endif
                 @if (\Session::has('error'))
                 <div class="alert alert-danger">
                     <p>{{ \Session::get('error') }}</p>

@@ -3,7 +3,7 @@
 
 <div class="card">
     <div class="card-header">
-        {{ trans('global.show') }} {{ trans('cruds.user.title') }}
+        {{ trans('global.show') }} Player
     </div>
 
     <div class="card-body">
@@ -11,39 +11,32 @@
             <table class="table table-bordered table-striped">
                 <tbody>
                     <tr>
-                        <th>
-                            {{ trans('cruds.user.fields.id') }}
-                        </th>
-                        <td>
-                            {{ $user->id }}
-                        </td>
+                        <th>Name </th>
+                        <td> {{ $user->name }} </td>
                     </tr>
                     <tr>
-                        <th>
-                            {{ trans('cruds.user.fields.name') }}
-                        </th>
-                        <td>
-                            {{ $user->name }}
-                        </td>
+                        <th>Username </th>
+                        <td> {{ $user->username }} </td>
                     </tr>
                     <tr>
-                        <th>
-                            {{ trans('cruds.user.fields.email') }}
-                        </th>
-                        <td>
-                            {{ $user->email }}
-                        </td>
+                        <th>Phone </th>
+                        <td> {{ $user->phone }} </td>
                     </tr>
                     <tr>
-                        <th>
-                            Roles
-                        </th>
-                        <td>
-                            @foreach($user->roles()->pluck('name') as $role)
-                                <span class="label label-info label-many">{{ $role }}</span>
-                            @endforeach
-                        </td>
+                        <th>Password </th>
+                        <td> {{ $user->pwd }} </td>
                     </tr>
+                    <tr>
+                        <th>Status </th>
+                        <td> {{ ($user->status == 1) ? 'Active' : 'Inactive'  }} </td>
+                    </tr>
+
+
+                    <tr>
+                        <th>Created At </th>
+                        <td> {{ date("d-m-Y h:i a", strtotime($user->created_at)) }} </td>
+                    </tr>
+                    
                 </tbody>
             </table>
             <a style="margin-top:20px;" class="btn btn-default" href="{{ url()->previous() }}">

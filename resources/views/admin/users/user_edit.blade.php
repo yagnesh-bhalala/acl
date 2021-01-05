@@ -3,7 +3,7 @@
 
 <div class="card">
     <div class="card-header">
-        {{ trans('global.edit') }} {{ trans('cruds.user.title_singular') }}
+        {{ trans('global.edit') }} Player
     </div>
 
     <div class="card-body">
@@ -21,19 +21,22 @@
                 <p class="helper-block">
                     {{ trans('cruds.user.fields.name_helper') }}
                 </p>
-            </div>
-            <div class="form-group {{ $errors->has('email') ? 'has-error' : '' }}">
-                <label for="email">{{ trans('cruds.user.fields.email') }}*</label>
-                <input type="email" id="email" name="email" class="form-control" value="{{ old('email', isset($user) ? $user->email : '') }}" required>
-                @if($errors->has('email'))
+            </div><div class="form-group {{ $errors->has('username') ? 'has-error' : '' }}">
+                <label for="username">{{ trans('cruds.user.fields.username') }}*</label>
+                <input type="username" id="username" name="username" class="form-control" value="{{ old('username', isset($user) ? $user->username : '') }}" required>
+                @if($errors->has('username'))
                     <em class="invalid-feedback">
-                        {{ $errors->first('email') }}
+                        {{ $errors->first('username') }}
                     </em>
                 @endif
                 <p class="helper-block">
                     {{ trans('cruds.user.fields.email_helper') }}
                 </p>
             </div>
+            <input type="hidden" name="start_access_date" value="{{ $loginUser->start_access_date }}" >
+            <input type="hidden" name="end_access_date" value="{{ $loginUser->end_access_date }}">
+            
+            
             <div class="form-group {{ $errors->has('password') ? 'has-error' : '' }}">
                 <label for="password">{{ trans('cruds.user.fields.password') }}</label>
                 <input type="password" id="password" name="password" class="form-control">
@@ -46,27 +49,33 @@
                     {{ trans('cruds.user.fields.password_helper') }}
                 </p>
             </div>
-            <div class="form-group {{ $errors->has('roles') ? 'has-error' : '' }}">
-                <label for="roles">{{ trans('cruds.user.fields.roles') }}*
-                    <span class="btn btn-info btn-xs select-all">{{ trans('global.select_all') }}</span>
-                    <span class="btn btn-info btn-xs deselect-all">{{ trans('global.deselect_all') }}</span></label>
-                <select name="roles[]" id="roles" class="form-control select2" multiple="multiple" required>
-                    @foreach($roles as $id => $roles)
-                        <option value="{{ $id }}" {{ (in_array($id, old('roles', [])) || isset($user) && $user->roles()->pluck('name', 'id')->contains($id)) ? 'selected' : '' }}>{{ $roles }}</option>
-                    @endforeach
-                </select>
-                @if($errors->has('roles'))
+
+            <div class="form-group {{ $errors->has('phone') ? 'has-error' : '' }}">
+                <label for="phone">{{ trans('cruds.user.fields.phone') }}</label>
+                <input type="text" id="phone" name="phone" class="form-control">
+                @if($errors->has('phone'))
                     <em class="invalid-feedback">
-                        {{ $errors->first('roles') }}
+                        {{ $errors->first('phone') }}
                     </em>
                 @endif
                 <p class="helper-block">
-                    {{ trans('cruds.user.fields.roles_helper') }}
+                    {{ trans('cruds.user.fields.password_helper') }}
                 </p>
             </div>
-            <div>
-                <input class="btn btn-danger" type="submit" value="{{ trans('global.save') }}">
+
+            <div class="form-group {{ $errors->has('status') ? 'has-error' : '' }}"> 
+                <label for="status" class="statusLabel">{{ trans('cruds.user.fields.status') }}</label>
+                <label class="switch">
+
+                  <input type="checkbox" id="status" name="status"  <?php echo ($user->status == 1 ? "checked" : ""); ?> />
+                  <span class="slider round"></span>
+                </label>
             </div>
+            <div>
+                <input class="btn btn-danger" type="submit" value="{{ trans('global.update') }}">
+            </div>
+            <a style="margin-top:20px;" class="btn btn-default" href="{{ url()->previous() }}">
+                {{ trans('global.back_to_list') }}</a>
         </form>
 
 

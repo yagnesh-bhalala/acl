@@ -20,8 +20,8 @@ class UsersController extends Controller
      */
     public function index() {
         $loginUser = Auth::user();
-        $permission = $this->getPermition();
-        // echo '<pre>'; print_r($loginUser);die;
+        $permission = $this->getPermition($loginUser->rl);
+        // echo '<pre>'; print_r($permission);die;
         if (! Gate::allows($permission)) {
             return abort(401);
         }
@@ -47,7 +47,7 @@ class UsersController extends Controller
      */
     public function create() {
         $loginUser = Auth::user();
-        $permission = $this->getPermition();
+        $permission = $this->getPermition($loginUser->rl);
         if (! Gate::allows($permission)) {
             return abort(401);
         }
@@ -58,7 +58,7 @@ class UsersController extends Controller
         } else if ($loginUser->rl == 2) { // superadmin create admin
             return view('admin.users.admin_create');
         } else if ($loginUser->rl == 3) { // admin create end-user
-            return view('admin.users.user_create');
+            return view('admin.users.user_create', compact('loginUser'));
         }         
     }
 
@@ -93,7 +93,6 @@ class UsersController extends Controller
         return redirect()->route('admin.users.index');
     }
 
-
     /**
      * Show the form for editing User.
      *
@@ -113,7 +112,7 @@ class UsersController extends Controller
         } else if ($loginUser->rl == 2) { // superadmin edit admin
             return view('admin.users.admin_edit', compact('user'));
         } else if ($loginUser->rl == 3) { // admin edit end-user
-            return view('admin.users.user_edit', compact('user'));
+            return view('admin.users.user_edit', compact('user', 'loginUser'));
         }
         // return view('admin.users.edit', compact('user', 'roles'));
     }
@@ -138,6 +137,10 @@ class UsersController extends Controller
                 $status = 1;
         }
         $requestArray['status'] = $status;
+
+        if ($user->status != $requestArray['status']) { // status update All
+            // $this->updateAllChildUserStatus($loginUser, $status);
+        }        
         if (isset($requestArray['password']) && trim($requestArray['password']) != '') {
             $requestArray['pwd'] = $requestArray['password'];
         }
@@ -155,11 +158,16 @@ class UsersController extends Controller
         if (! Gate::allows($permission)) {
             return abort(401);
         }
-
         // $user->load('roles');
-
         // return view('admin.users.show', compact('user'));
-        return view('admin.users.superadmin_show', compact('user'));
+        if ($loginUser->rl == 1) { // author view superadmin            
+            return view('admin.users.superadmin_show', compact('user'));
+        } else if ($loginUser->rl == 2) { // superadmin view admin
+            return view('admin.users.admin_show', compact('user'));
+        } else if ($loginUser->rl == 3) { // admin view end-user
+            return view('admin.users.user_show', compact('user'));
+        }
+        return view('admin.users.user_show', compact('user'));
     }
 
     /**
@@ -197,17 +205,34 @@ class UsersController extends Controller
         return response()->noContent();
     }
 
-    public function getPermition() {
-        $loginUser = Auth::user();
-        if ($loginUser->rl == 1) {
+    public function getPermition($perRl) {        
+        if ($perRl == 1) {
             $permission = 'users_manage';
-        } else if ($loginUser->rl == 2) {
+        } else if ($perRl == 2) {
             $permission = 'superadmin';
+        } else if ($perRl == 3) {
+            $permission = 'admin';
         } else {
-            $permission = 'admin';    
+            $permission = 'user';
         }
         
         return $permission;
+    }
+
+    public function updateAllChildUserStatus($loginUser, $status) {
+        $adminGet = User::where('created_by', $loginUser->id)->get();
+        $userId = [];
+        foreach ($adminGet as $k => $val) {
+            $userId[] = $val->id;
+            $playerGet = User::where('created_by', $val->id)->get();
+            foreach ($playerGet as $k2 => $val2) {
+                $userId[] = $val2->id;
+            }
+        }
+
+        if (!empty($userId)) {
+            User::whereIn('id', $userId)->update(['status' => $status]);    
+        }
     }
 
 }

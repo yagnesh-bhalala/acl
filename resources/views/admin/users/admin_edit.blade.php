@@ -3,7 +3,7 @@
 
 <div class="card">
     <div class="card-header">
-        {{ trans('global.edit') }} {{ trans('cruds.user.title_singular') }}
+        {{ trans('global.edit') }} Admin
     </div>
 
     <div class="card-body">

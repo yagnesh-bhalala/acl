@@ -67,7 +67,9 @@ class ChangePasswordController extends Controller
     {
         return Validator::make($data, [
             'current_password' => 'required',
-            'new_password' => 'required|min:6|confirmed',
+            'new_password' => 'required|min:8|confirmed|regex:/^.*(?=.{3,})(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[\d\x])(?=.*[!$#%@£%^&*]).*$/',
+        ],[
+            'new_password.regex' => 'Password contain, At least 1 capital letter, At least 1 lowercase letter, At least 1 special character, At least 1 numeric character',
         ]);
     }
 }
