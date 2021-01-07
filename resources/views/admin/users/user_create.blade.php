@@ -10,7 +10,7 @@
         <form action="{{ route("admin.users.store") }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                <label for="name">{{ trans('cruds.user.fields.name') }}*</label>
+                <label for="name">Player name*</label>
                 <input type="text" id="name" name="name" class="form-control" value="{{ old('name', isset($user) ? $user->name : '') }}" required>
                 @if($errors->has('name'))
                     <em class="invalid-feedback">
@@ -22,7 +22,7 @@
                 </p>
             </div>
             <div class="form-group {{ $errors->has('username') ? 'has-error' : '' }}">
-                <label for="username">{{ trans('cruds.user.fields.username') }}*</label>
+                <label for="username">{{ trans('cruds.user.fields.username') }}* <small>[will be use as playercode]</small></label>
                 <input type="username" id="username" name="username" class="form-control" value="{{ old('username', isset($user) ? $user->username : '') }}" required>
                 @if($errors->has('username'))
                     <em class="invalid-feedback">
@@ -56,6 +56,19 @@
                 @if($errors->has('phone'))
                     <em class="invalid-feedback">
                         {{ $errors->first('phone') }}
+                    </em>
+                @endif
+                <p class="helper-block">
+                    {{ trans('cruds.user.fields.name_helper') }}
+                </p>
+            </div>
+
+            <div class="form-group {{ $errors->has('opening_balance') ? 'has-error' : '' }}">
+                <label for="opening_balance">Balance *</label>
+                <input type="text" id="opening_balance" name="opening_balance" class="form-control" value="{{ old('opening_balance', isset($player) ? $player->opening_balance : '') }}" >
+                @if($errors->has('opening_balance'))
+                    <em class="invalid-feedback">
+                        {{ $errors->first('opening_balance') }}
                     </em>
                 @endif
                 <p class="helper-block">

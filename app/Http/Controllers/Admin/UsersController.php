@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\User;
+use App\Player;
 use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -10,15 +11,20 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreUsersRequest;
 use App\Http\Requests\Admin\UpdateUsersRequest;
 use Auth;
+use App\Http\Controllers\Admin\PlayerController;
 
 class UsersController extends Controller
 {
+    protected $playerController;
+    public function __construct(PlayerController $playerController) {
+        $this->playerController = $playerController;
+    }
     /**
      * Display a listing of User.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index() {
+    public function index() {        
         $loginUser = Auth::user();
         $permission = $this->getPermition($loginUser->rl);
         // echo '<pre>'; print_r($permission);die;
@@ -58,6 +64,7 @@ class UsersController extends Controller
         } else if ($loginUser->rl == 2) { // superadmin create admin
             return view('admin.users.admin_create');
         } else if ($loginUser->rl == 3) { // admin create end-user
+
             return view('admin.users.user_create', compact('loginUser'));
         }         
     }
@@ -75,6 +82,12 @@ class UsersController extends Controller
             return abort(401);
         }
         
+        if ($loginUser->rl == 3) {
+            $this->validate($request, [
+                'opening_balance'   => 'required|numeric|min:0',
+            ]);
+        }
+
         $requestArray = $request->all();
         $requestArray['created_by'] = $loginUser->id;
         $requestArray['rl'] = $loginUser->rl+1;
@@ -89,8 +102,11 @@ class UsersController extends Controller
         $user = User::create($requestArray);
         $permission = $this->getPermition($loginUser->rl+1);
         $user->assignRole([$permission]);
+        if ($loginUser->rl == 3) {
+            $this->playerController->createPlayerFromAdminPanel($requestArray, $user, $loginUser,1);
+        }
 
-        return redirect()->route('admin.users.index');
+        return redirect()->route('admin.users.index')->with('success', 'saved!');
     }
 
     /**
@@ -112,6 +128,7 @@ class UsersController extends Controller
         } else if ($loginUser->rl == 2) { // superadmin edit admin
             return view('admin.users.admin_edit', compact('user'));
         } else if ($loginUser->rl == 3) { // admin edit end-user
+            // $player = Player::where('user_id', $user->id)->first();
             return view('admin.users.user_edit', compact('user', 'loginUser'));
         }
         // return view('admin.users.edit', compact('user', 'roles'));
@@ -134,12 +151,12 @@ class UsersController extends Controller
         $requestArray = $request->all();
         $status = 0;
         if (isset($requestArray['status']) && $requestArray['status'] == 'on') {
-                $status = 1;
+            $status = 1;
         }
         $requestArray['status'] = $status;
 
         if ($user->status != $requestArray['status']) { // status update All
-            // $this->updateAllChildUserStatus($loginUser, $status);
+            $this->updateAllChildUserStatus($user, $loginUser->rl, $status);
         }        
         if (isset($requestArray['password']) && trim($requestArray['password']) != '') {
             $requestArray['pwd'] = $requestArray['password'];
@@ -149,7 +166,11 @@ class UsersController extends Controller
         $permission = $this->getPermition($loginUser->rl+1);        
         $user->syncRoles([$permission]);
 
-        return redirect()->route('admin.users.index');
+        if ($loginUser->rl == 3) {
+            $this->playerController->createPlayerFromAdminPanel([],$user, $loginUser, 0);
+        }
+
+        return redirect()->route('admin.users.index')->with('success', 'Updated!');
     }
 
     public function show(User $user) {
@@ -165,7 +186,9 @@ class UsersController extends Controller
         } else if ($loginUser->rl == 2) { // superadmin view admin
             return view('admin.users.admin_show', compact('user'));
         } else if ($loginUser->rl == 3) { // admin view end-user
-            return view('admin.users.user_show', compact('user'));
+            $player = Player::where('user_id', $user->id)->first();
+            // print_r($player->opening_balance);die;
+            return view('admin.users.user_show', compact('user', 'player'));
         }
         return view('admin.users.user_show', compact('user'));
     }
@@ -185,7 +208,7 @@ class UsersController extends Controller
 
         $user->delete();
 
-        return redirect()->route('admin.users.index');
+        return redirect()->route('admin.users.index')->with('success', 'Deleted!');
     }
 
     /**
@@ -205,7 +228,7 @@ class UsersController extends Controller
         return response()->noContent();
     }
 
-    public function getPermition($perRl) {        
+    public function getPermition($perRl) {
         if ($perRl == 1) {
             $permission = 'users_manage';
         } else if ($perRl == 2) {
@@ -219,12 +242,19 @@ class UsersController extends Controller
         return $permission;
     }
 
-    public function updateAllChildUserStatus($loginUser, $status) {
-        $adminGet = User::where('created_by', $loginUser->id)->get();
+    public function updateAllChildUserStatus($user, $loginUserRl, $status) {
         $userId = [];
-        foreach ($adminGet as $k => $val) {
-            $userId[] = $val->id;
-            $playerGet = User::where('created_by', $val->id)->get();
+        if ($loginUserRl == 1) { // call when author hint
+            $adminGet = User::select('id')->where('created_by', $user->id)->get();            
+            foreach ($adminGet as $k => $val) {            
+                $userId[] = $val->id;            
+                $playerGet = User::where('created_by', $val->id)->get();
+                foreach ($playerGet as $k2 => $val2) {
+                    $userId[] = $val2->id;
+                }
+            }
+        } else if ($loginUserRl == 2) { // for call when superadmin  hint
+            $playerGet = User::where('created_by', $user->id)->get();
             foreach ($playerGet as $k2 => $val2) {
                 $userId[] = $val2->id;
             }

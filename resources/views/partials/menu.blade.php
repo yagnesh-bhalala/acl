@@ -10,7 +10,7 @@
                     {{ trans('global.dashboard') }}
                 </a>
             </li>
-            @can('users_manage')
+            @can('users_manage1')
                 <li class="nav-item nav-dropdown">
                     <a class="nav-link  nav-dropdown-toggle" href="#">
                         <i class="fa-fw fas fa-users nav-icon">
@@ -46,13 +46,20 @@
                     </ul>
                 </li>
             @endcan
-            @if(Gate::check('superadmin') || Gate::check('admin'))
+            @if(Gate::check('superadmin') || Gate::check('admin') || Gate::check('users_manage'))
                 <li class="nav-item">
                     <a href="{{ route("admin.users.index") }}" class="nav-link {{ request()->is('admin/users') || request()->is('admin/users/*') ? 'active' : '' }}">
                         <i class="fa-fw fas fa-user nav-icon">
 
                         </i>
-                        {{ trans('cruds.user.title') }}
+                        @if(Gate::check('users_manage'))
+                            Superadmin(dealer)
+                        @elseif(Gate::check('superadmin') )
+                            Admin(client)
+                        @else
+                            Player
+                        @endif
+
                     </a>
                 </li>
             @endif

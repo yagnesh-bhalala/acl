@@ -11,7 +11,7 @@
             <table class="table table-bordered table-striped">
                 <tbody>
                     <tr>
-                        <th>Name </th>
+                        <th>Player name </th>
                         <td> {{ $user->name }} </td>
                     </tr>
                     <tr>
@@ -25,6 +25,10 @@
                     <tr>
                         <th>Password </th>
                         <td> {{ $user->pwd }} </td>
+                    </tr>
+                    <tr>
+                        <th>Balance </th>
+                        <td> {{ $player->opening_balance }} </td>
                     </tr>
                     <tr>
                         <th>Status </th>

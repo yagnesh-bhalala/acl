@@ -14,8 +14,8 @@ class UserSeed extends Seeder
         $user = User::create([
             'name' => 'Author',
             'email' => 'author@admin.com',
-            'username' => 'author',
-            'password' => bcrypt('password'),
+            'username' => 'barotjeeno-utaro11',
+            'password' => bcrypt('lakshaman-Bapu^321'),
             'created_by' => 0,
             'rl' => 1, //Author
             'start_access_date' => null,
