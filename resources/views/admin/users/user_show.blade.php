@@ -19,6 +19,10 @@
                         <td> {{ $user->username }} </td>
                     </tr>
                     <tr>
+                        <th>Player code </th>
+                        <td> {{ strtoupper($user->username) }} </td>
+                    </tr>
+                    <tr>
                         <th>Phone </th>
                         <td> {{ $user->phone }} </td>
                     </tr>

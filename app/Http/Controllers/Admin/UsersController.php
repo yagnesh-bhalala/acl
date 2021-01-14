@@ -38,6 +38,11 @@ class UsersController extends Controller
         } else if ($loginUser->rl == 2) {
             return view('admin.users.admin_index', compact('users'));
         } else if ($loginUser->rl == 3) {
+            $users = User::select('users.*','p.opening_balance')
+            ->where('users.created_by', $loginUser->id)
+            ->leftjoin('player as p', 'users.id', '=', 'p.user_id')
+            ->get();
+            // echo "<pre>";print_r($users);die;
             return view('admin.users.user_index', compact('users'));
         } else if ($loginUser->rl == 4) {
             die('Test User logged in!!!');
@@ -64,8 +69,11 @@ class UsersController extends Controller
         } else if ($loginUser->rl == 2) { // superadmin create admin
             return view('admin.users.admin_create');
         } else if ($loginUser->rl == 3) { // admin create end-user
-
-            return view('admin.users.user_create', compact('loginUser'));
+            $player_detail = Player::select('id','player_code','player_name')
+                ->where('created_by', $loginUser->id)
+                ->get()->toArray();
+            
+            return view('admin.users.user_create', compact('loginUser', 'player_detail'));
         }         
     }
 
@@ -84,8 +92,16 @@ class UsersController extends Controller
         
         if ($loginUser->rl == 3) {
             $this->validate($request, [
-                'opening_balance'   => 'required|numeric|min:0',
+                'opening_balance' => 'required|numeric|min:0',
+                'player_commision_percentage' => 'between:1,20',
+                // 'third_party_percentage' => 'nullable|between:0.5,'. $request['player_commision_percentage'],
             ]);
+            if (trim($request['third_party_code']) != '') {
+                $this->validate(request(), [
+                    'third_party_code' => 'validate_third_party_code:' . $loginUser->id,
+                    'third_party_percentage' => 'required|between:0.5,'. $request['player_commision_percentage'],
+                ]);
+            }
         }
 
         $requestArray = $request->all();
@@ -95,15 +111,20 @@ class UsersController extends Controller
         
         $status = 0;
         if (isset($requestArray['status']) && $requestArray['status'] == 'on') {
-                $status = 1;
+            $status = 1;
+        }
+        $is_flat_commision = 0;
+        if (isset($requestArray['is_flat_commision']) && $requestArray['is_flat_commision'] == 'on') {
+            $is_flat_commision = 1;
         }
         $requestArray['status'] = $status;
+        $requestArray['is_flat_commision'] = $is_flat_commision;
         // echo '<pre>';print_r($requestArray);die;
         $user = User::create($requestArray);
         $permission = $this->getPermition($loginUser->rl+1);
         $user->assignRole([$permission]);
         if ($loginUser->rl == 3) {
-            $this->playerController->createPlayerFromAdminPanel($requestArray, $user, $loginUser,1);
+            $this->playerController->createPlayerFromAdminPanel($requestArray, $user, $loginUser, 1);
         }
 
         return redirect()->route('admin.users.index')->with('success', 'saved!');
@@ -115,7 +136,7 @@ class UsersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(User $user) {
+    public function edit(User $user) {        
         $loginUser = Auth::user();
         $permission = $this->getPermition($loginUser->rl);        
         if (! Gate::allows($permission)) {
@@ -128,8 +149,12 @@ class UsersController extends Controller
         } else if ($loginUser->rl == 2) { // superadmin edit admin
             return view('admin.users.admin_edit', compact('user'));
         } else if ($loginUser->rl == 3) { // admin edit end-user
-            // $player = Player::where('user_id', $user->id)->first();
-            return view('admin.users.user_edit', compact('user', 'loginUser'));
+            $user->player_model = Player::where(['user_id' => $user->id, 'created_by' => $loginUser->id])->first();
+            $player_detail = Player::select('id','player_code','player_name')
+                ->where('created_by', $loginUser->id)
+                ->get()->toArray();
+            // echo "<pre>"; print_r($user); die();
+            return view('admin.users.user_edit', compact('user', 'loginUser', 'player_detail'));
         }
         // return view('admin.users.edit', compact('user', 'roles'));
     }
@@ -149,11 +174,31 @@ class UsersController extends Controller
         }
 
         $requestArray = $request->all();
+            // echo "<pre>"; print_r($request->all()); die();
+
+        if ($loginUser->rl == 3) {
+            $this->validate($request, [                
+                'player_commision_percentage' => 'between:1,20',
+            ]);
+            if (trim($request['third_party_code']) != '') {
+                $this->validate(request(), [
+                    'third_party_code' => 'validate_third_party_code:' . $loginUser->id,
+                    'third_party_percentage' => 'required|between:0.5,'. $request['player_commision_percentage'],
+                ]);
+            }
+        }
+
         $status = 0;
         if (isset($requestArray['status']) && $requestArray['status'] == 'on') {
             $status = 1;
         }
         $requestArray['status'] = $status;
+
+        $is_flat_commision = 0;
+        if (isset($requestArray['is_flat_commision']) && $requestArray['is_flat_commision'] == 'on') {
+            $is_flat_commision = 1;
+        }
+        $requestArray['is_flat_commision'] = $is_flat_commision;
 
         if ($user->status != $requestArray['status']) { // status update All
             $this->updateAllChildUserStatus($user, $loginUser->rl, $status);
@@ -167,7 +212,7 @@ class UsersController extends Controller
         $user->syncRoles([$permission]);
 
         if ($loginUser->rl == 3) {
-            $this->playerController->createPlayerFromAdminPanel([],$user, $loginUser, 0);
+            $this->playerController->createPlayerFromAdminPanel($requestArray,$user, $loginUser, 0);
         }
 
         return redirect()->route('admin.users.index')->with('success', 'Updated!');
@@ -205,10 +250,14 @@ class UsersController extends Controller
         if (! Gate::allows($permission)) {
             return abort(401);
         }
+        $player = Player::where(['user_id' => $user->id, 'created_by' => $loginUser->id])->first();
+        if ($player) {
+            $player->delete();
+            $user->delete();
+            return redirect()->route('admin.users.index')->with('success', 'Deleted!');
+        }
 
-        $user->delete();
-
-        return redirect()->route('admin.users.index')->with('success', 'Deleted!');
+        return redirect()->route('admin.users.index')->with('error', 'Something went wrong!');
     }
 
     /**

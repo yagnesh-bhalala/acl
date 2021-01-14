@@ -20,6 +20,7 @@ class CustomeMiddlware
         list($controller, $action) = explode('@', $controller);
         
         if ((Auth::check())) {
+                    // die('hh');
             $user = Auth::user();
             if ($user->rl == 1) {
                 return $next($request);
@@ -33,12 +34,12 @@ class CustomeMiddlware
                         }
                     }                    
                 } else if ($controller == 'PlayerController') {
-                    if (in_array($action, config('app.actions.player'))) {
+                    /*if (in_array($action, config('app.actions.player'))) {
                         $playerModel = Player::select('created_by')->find($request->route('id'));
                         if (isset($playerModel->created_by) && $playerModel->created_by != $user->id) {
                             return redirect()->route('player.list');
                         }
-                    }
+                    }*/
                 }
                 return $next($request);
             }

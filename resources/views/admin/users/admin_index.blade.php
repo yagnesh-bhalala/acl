@@ -67,10 +67,11 @@
                                 {{ $user->end_access_date ?? '' }}
                             </td>
                             <td>
-                                <label class="switch">
-                                  <input type="checkbox" id="status" name="status"  <?php echo ($user->status == 1 ? "checked" : ""); ?> disabled />
+                                <!-- <label class="switch">
+                                  <input type="checkbox" id="status" name="status"  <?php //echo ($user->status == 1 ? "checked" : ""); ?> disabled />
                                   <span class="slider round"></span>
-                                </label>
+                                </label> -->
+                                <span class="font-weight-bold text<?php echo ($user->status == 1 ? "-success" : "-danger"); ?>"><?php echo ($user->status == 1 ? "Active" : "Inactive"); ?></span>
                             </td>
 
                             <td>

@@ -21,8 +21,9 @@
                     <tr>
                         <th width="10"> </th>
                         <th>Sr. </th>
-                        <th> {{ trans('cruds.user.fields.name') }} </th>
-                        <th> Username </th>                        
+                        <th> {{ trans('cruds.user.fields.name') }}(Player name) </th>
+                        <th> Username(Player code) </th>                        
+                        <th> Balance </th>
                         <th> Status </th>
                         <th> &nbsp; </th>
                     </tr>
@@ -41,12 +42,15 @@
                                 {{ $user->username ?? '' }}
                             </td>
                             <td>
-                                <label class="switch">
-                                  <input type="checkbox" id="status" name="status"  <?php echo ($user->status == 1 ? "checked" : ""); ?> disabled />
-                                  <span class="slider round"></span>
-                                </label>
+                                {{ $user->opening_balance ?? '' }}
                             </td>
-
+                            <td>
+                                <!-- <label class="switch">
+                                  <input type="checkbox" id="status" name="status"  <?php //echo ($user->status == 1 ? "checked" : ""); ?> disabled />
+                                  <span class="slider round"></span>
+                                </label> -->
+                                <span class="font-weight-bold text<?php echo ($user->status == 1 ? "-success" : "-danger"); ?>"><?php echo ($user->status == 1 ? "Active" : "Inactive"); ?></span>
+                            </td>
                             <td>
                                 <a class="btn btn-xs btn-primary" href="{{ route('admin.users.show', $user->id) }}">
                                     {{ trans('global.view') }}
@@ -61,16 +65,12 @@
                                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                     <input type="submit" class="btn btn-xs btn-danger" value="{{ trans('global.delete') }}">
                                 </form>
-
                             </td>
-
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
-
-
     </div>
 </div>
 @endsection

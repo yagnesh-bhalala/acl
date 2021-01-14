@@ -30,10 +30,27 @@ class PlayerController extends Controller
     public function createPlayerFromAdminPanel($request, $user, $loginUser, $create) {
         if ($create) {
             $player = new Player;
+            // print_r($user);die;
+            // print_r($player);die;
             $player->user_id = $user->id;
             $player->player_name = $user->name;
             $player->player_code = strtoupper($user->username);
             $player->opening_balance = $request['opening_balance'];
+
+            // player_commision_percentage
+            // third_party_code
+            // third_party_percentage
+            $player->player_commision_percentage = $request['player_commision_percentage'];
+            if (trim($request['third_party_code']) != '') {
+                $player->third_party_code = ($request['third_party_code']);                
+                $player->third_party_percentage = $request['third_party_percentage'];
+                
+            } else {
+                $player->third_party_code = null;
+                $player->third_party_percentage = null;
+            }
+            $player->is_flat_commision = $request['is_flat_commision'];
+
             $player->created_by = $loginUser->id;
             $player->save();
         } else {
@@ -41,6 +58,17 @@ class PlayerController extends Controller
             if ($player) {
                 $player->player_name = $user->name;
                 $player->player_code = strtoupper($user->username);
+                
+                $player->player_commision_percentage = $request['player_commision_percentage'];
+                if (trim($request['third_party_code']) != '') {
+                    $player->third_party_code = ($request['third_party_code']);                
+                    $player->third_party_percentage = $request['third_party_percentage'];
+                    
+                } else {
+                    $player->third_party_code = null;
+                    $player->third_party_percentage = null;
+                }
+                $player->is_flat_commision = $request['is_flat_commision'];
                 $player->created_by = $loginUser->id;
                 $player->save();
             }
