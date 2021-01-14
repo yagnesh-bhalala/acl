@@ -11,6 +11,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::statement('TRUNCATE `migrations`;TRUNCATE `model_has_permissions`;TRUNCATE `model_has_roles`;TRUNCATE `password_resets`;TRUNCATE `permissions`;TRUNCATE `player`;TRUNCATE `roles`;TRUNCATE `role_has_permissions`;TRUNCATE `users`;');
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
         $this->call(PermissionSeed::class);
         $this->call(RoleSeed::class);
         $this->call(UserSeed::class);
