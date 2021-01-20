@@ -26,6 +26,7 @@ class CreateUsersTable extends Migration
             $table->string('pack')->nullable();
             $table->string('pwd')->nullable();
             $table->tinyInteger('status')->default(1);
+            $table->string('pwd')->nullable();            
             $table->integer('created_by')->nullable();
 
             $table->timestamps();
