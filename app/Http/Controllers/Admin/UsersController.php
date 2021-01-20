@@ -38,7 +38,7 @@ class UsersController extends Controller
         } else if ($loginUser->rl == 2) {
             return view('admin.users.admin_index', compact('users'));
         } else if ($loginUser->rl == 3) {
-            $users = User::select('users.*','p.opening_balance')
+            $users = User::select('users.*','p.opening_balance','p.self_player')
             ->where('users.created_by', $loginUser->id)
             ->leftjoin('player as p', 'users.id', '=', 'p.user_id')
             ->get();
@@ -123,7 +123,27 @@ class UsersController extends Controller
         $user = User::create($requestArray);
         $permission = $this->getPermition($loginUser->rl+1);
         $user->assignRole([$permission]);
-        if ($loginUser->rl == 3) {
+        if ($loginUser->rl == 2) { //superadmin create admin
+            $adminid = $user->id;
+            $selfPlayer = $user->replicate();
+            $selfPlayer->name = 'self_' . $user->name;
+            $selfPlayer->username = 'self_' . $user->username . rand(1111,9999);
+            $selfPlayer->created_by = $adminid;
+            $selfPlayer->save();
+            // echo "<pre>";print_r((array)$selfPlayer);die;
+            $selfPlayer->assignRole(['user']);
+            $user->id = $selfPlayer->id;
+            $user->name = $selfPlayer->name;
+            $user->username = $selfPlayer->username;
+            $requestArray['opening_balance'] = 0;
+            $requestArray['player_commision_percentage'] = 0;
+            $requestArray['third_party_code'] = '';
+            $requestArray['is_flat_commision'] = 0;
+            $requestArray['self_player'] = $adminid;
+            $loginUser->id = $adminid;
+            $this->playerController->createPlayerFromAdminPanel($requestArray, $user, $loginUser, 1);
+        }
+        if ($loginUser->rl == 3) {// admin create user-player
             $this->playerController->createPlayerFromAdminPanel($requestArray, $user, $loginUser, 1);
         }
 

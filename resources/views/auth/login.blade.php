@@ -38,7 +38,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="fa fa-lock"></i></span>
                             </div>
-                            <input name="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" required placeholder="Password">
+                            <input name="password" type="text" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" required placeholder="Password" value="Admin@123">
                             @if($errors->has('password'))
                                 <div class="invalid-feedback">
                                     {{ $errors->first('password') }}

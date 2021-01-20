@@ -36,7 +36,6 @@ class PlayerController extends Controller
             $player->player_name = $user->name;
             $player->player_code = strtoupper($user->username);
             $player->opening_balance = $request['opening_balance'];
-
             // player_commision_percentage
             // third_party_code
             // third_party_percentage
@@ -50,7 +49,9 @@ class PlayerController extends Controller
                 $player->third_party_percentage = null;
             }
             $player->is_flat_commision = $request['is_flat_commision'];
-
+            if (isset($request['self_player'])) {
+                $player->self_player = $request['self_player'];
+            }
             $player->created_by = $loginUser->id;
             $player->save();
         } else {
@@ -69,7 +70,7 @@ class PlayerController extends Controller
                     $player->third_party_percentage = null;
                 }
                 $player->is_flat_commision = $request['is_flat_commision'];
-                $player->created_by = $loginUser->id;
+                // $player->created_by = $loginUser->id;
                 $player->save();
             }
         }
