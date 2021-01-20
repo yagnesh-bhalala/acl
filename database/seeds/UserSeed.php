@@ -37,18 +37,7 @@ class UserSeed extends Seeder
         $user2->assignRole('superadmin');
         // -------------------------------------------
 
-        // -------------------------------------------
-        $user3 = User::create([
-            'name' => 'Admin',
-            'email' => 'admin@gmail.com',
-            'username' => 'admin',
-            'password' => bcrypt('password'),
-            'created_by' => 2,
-            'rl' => 3, // Admin
-            'start_access_date' => date('Y-m-d'),
-            'end_access_date' => date("Y-m-d",strtotime("1 year")),
-        ],);
-        $user3->assignRole('admin');
+        
 
     }
 }
