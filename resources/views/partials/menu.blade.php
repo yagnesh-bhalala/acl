@@ -64,6 +64,16 @@
                 </li>
             @endif
 
+            <?php if(Auth::user()->rl == 3) {  ?>
+                <li class="nav-item">
+                    <a href="{{ route("admin.player.try-manual.create") }}" class="nav-link {{ request()->is('admin/player/try-manual') ? 'active' : '' }}">
+                        <i class="fa-fw fas fa-user nav-icon">
+                        </i>
+                        Try manualy
+                    </a>
+                </li>
+            <?php }  ?>
+
             <li class="nav-item">
                 <a href="{{ route('auth.change_password') }}" class="nav-link">
                     <i class="nav-icon fas fa-fw fa-key">

@@ -21,7 +21,7 @@ $(document).ready(function () {
   })
 
   $('.datetime').datetimepicker({
-    format: 'YYYY-MM-DD HH:mm:ss',
+    format: 'DD-MM-YYYY hh:mm a',
     locale: 'en',
     sideBySide: true
   })

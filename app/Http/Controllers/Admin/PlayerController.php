@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 // use App\Http\Requests\Admin\StoreRolesRequest;
 // use App\Http\Requests\Admin\UpdateRolesRequest;
 use App\Player;
+use Auth;
 
 class PlayerController extends Controller
 {
@@ -30,20 +31,14 @@ class PlayerController extends Controller
     public function createPlayerFromAdminPanel($request, $user, $loginUser, $create) {
         if ($create) {
             $player = new Player;
-            // print_r($user);die;
-            // print_r($player);die;
             $player->user_id = $user->id;
             $player->player_name = $user->name;
             $player->player_code = strtoupper($user->username);
             $player->opening_balance = $request['opening_balance'];
-            // player_commision_percentage
-            // third_party_code
-            // third_party_percentage
             $player->player_commision_percentage = $request['player_commision_percentage'];
             if (trim($request['third_party_code']) != '') {
                 $player->third_party_code = ($request['third_party_code']);                
-                $player->third_party_percentage = $request['third_party_percentage'];
-                
+                $player->third_party_percentage = $request['third_party_percentage'];                
             } else {
                 $player->third_party_code = null;
                 $player->third_party_percentage = null;
@@ -76,10 +71,33 @@ class PlayerController extends Controller
         }
     }
 
+    public function tryManualGet(Request $request) {
+        $loginUser = Auth::user();
+        $data['player_dd'] = Player::where('created_by', $loginUser->id)->orderBy('player_name')->get()->toArray();
+        $data['loginUser'] = $loginUser;
+        return view('admin.player.events', $data);
+    }
+
+    public function tryManualPost(Request $request) {
+        $loginUser = Auth::user();
+        $this->validate($request, [
+            'winner_code' => 'required|numeric|validate_player_code',
+            'loser_code' => 'required|numeric|validate_player_code|same_player_code:'. $request['winner_code'],
+            'amount' => 'required|numeric|min:0',
+            'date_time' => 'required|date_format:d-m-Y h:i a',
+            'comments' => 'max:200',
+        ]);
+        echo "<pre>"; print_r($request->all()); die;
+        $data['loginUser'] = $loginUser;
+        return view('admin.player.events', $data);
+    }
+
     function callCorrentMethos() {
 
         echo "callCorrentMethos()"; die;
     }
+
+
 
     
 

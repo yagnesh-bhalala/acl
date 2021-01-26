@@ -15,4 +15,6 @@ Route::group(['middleware' => ['auth', 'checkauth'], 'prefix' => 'admin', 'as' =
     // Route::delete('roles_mass_destroy', 'Admin\RolesController@massDestroy')->name('roles.mass_destroy');
     Route::resource('users', 'Admin\UsersController');
     Route::delete('users_mass_destroy', 'Admin\UsersController@massDestroy')->name('users.mass_destroy');
+    Route::get('try-manual', 'Admin\PlayerController@tryManualGet')->name('player.try-manual.create');
+    Route::post('try-manual', 'Admin\PlayerController@tryManualPost')->name('player.try-manual.store');
 });
