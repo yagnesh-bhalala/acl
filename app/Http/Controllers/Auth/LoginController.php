@@ -72,7 +72,7 @@ class LoginController extends Controller
             if ($user->rl != 1) {
                 if ($user->status == 0) {                    
                     $this->logout($request);                    
-                    return redirect()->route('login')->with('error','Blocked! Please contact to administore.');
+                    return redirect()->route('login')->with('error','Deactivated ! Please Contact Provider.');
                 }
                 // echo '<pre>';print_r($user);die;
                 $start = $user->start_access_date;

@@ -33,6 +33,18 @@
                     {{ trans('cruds.user.fields.email_helper') }}
                 </p>
             </div>
+             <div class="form-group {{ $errors->has('password') ? 'has-error' : '' }}">
+                <label for="password">{{ trans('cruds.user.fields.password') }}*</label>
+                <input type="text" id="password" name="password" class="form-control" value="Admin@123" required>
+                @if($errors->has('password'))
+                    <em class="invalid-feedback">
+                        {{ $errors->first('password') }}
+                    </em>
+                @endif
+                <p class="helper-block">
+                    {{ trans('cruds.user.fields.password_helper') }}
+                </p>
+            </div>
 
             <input type="hidden" name="start_access_date" value="{{ $loginUser->start_access_date }}" >
             <input type="hidden" name="end_access_date" value="{{ $loginUser->end_access_date }}">
@@ -71,7 +83,7 @@
             </div>
 
             <div class="form-group {{ $errors->has('third_party_code') ? 'has-error' : '' }}">
-                <label for="third_party_code">Third party commision</label>
+                <label for="third_party_code">Ref. commision</label>
                 <select id="third_party_code" name="third_party_code" class="form-control">
                     <option value="">Select code</option>
                     @foreach ($player_detail as $player)
@@ -85,7 +97,7 @@
             </div>
 
             <div class="form-group">
-                <label for="third_party_percentage">{{ __('Third pary commission %') }}</label>
+                <label for="third_party_percentage">{{ __('Ref. commission %') }}</label>
                 <div id="secondperc">
                     <select id="third_party_percentage" name="third_party_percentage" class="form-control" >
                     <option value="{{ old('third_party_percentage') }}">Select percentage(Range 1 to n %)</option>
@@ -97,6 +109,13 @@
                         @endphp
                     @endfor
                     </select>
+                </div>
+            </div>
+            <div class="form-group {{ $errors->has('is_flat_commision') ? 'has-error' : '' }}"> 
+                <label for="is_flat_commision" class="flexLabel">Flat commision(Player win or loose)</label>
+                <div class="custom-control custom-switch">
+                  <input type="checkbox" class="custom-control-input" id="switch1" name="is_flat_commision">
+                  <label class="custom-control-label" for="switch1"></label>
                 </div>
             </div>
 
@@ -113,18 +132,7 @@
                 </p>
             </div>
 
-            <div class="form-group {{ $errors->has('password') ? 'has-error' : '' }}">
-                <label for="password">{{ trans('cruds.user.fields.password') }}*</label>
-                <input type="text" id="password" name="password" class="form-control" value="Admin@123" required>
-                @if($errors->has('password'))
-                    <em class="invalid-feedback">
-                        {{ $errors->first('password') }}
-                    </em>
-                @endif
-                <p class="helper-block">
-                    {{ trans('cruds.user.fields.password_helper') }}
-                </p>
-            </div>
+           
 
             <!-- <div class="form-group {{ $errors->has('is_flat_commision') ? 'has-error' : '' }}"> 
                 <label for="is_flat_commision" class="custom-control custom-switch">Is flex commision</label>
@@ -133,13 +141,7 @@
                   <span class="slider round"></span>
                 </label>
             </div> -->
-            <div class="form-group {{ $errors->has('is_flat_commision') ? 'has-error' : '' }}"> 
-                <label for="is_flat_commision" class="flexLabel">Is flex commision</label>
-                <div class="custom-control custom-switch">
-                  <input type="checkbox" class="custom-control-input" id="switch1" name="is_flat_commision">
-                  <label class="custom-control-label" for="switch1">Don't care player win or loose</label>
-                </div>
-            </div>
+            
 
             <div class="form-group {{ $errors->has('status') ? 'has-error' : '' }}"> 
                 <label for="status" class="statusLabel">{{ trans('cruds.user.fields.status') }}</label>
