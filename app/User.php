@@ -3,7 +3,6 @@ namespace App;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Spatie\Permission\Traits\HasRoles;
 use Hash;
 
 /**
@@ -18,7 +17,6 @@ use Hash;
 class User extends Authenticatable
 {
     use Notifiable;
-    use HasRoles;
 
     protected $fillable = ['name', 'email', 'password', 'remember_token', 'created_by', 'rl','start_access_date', 'end_access_date', 'phone', 'pack', 'username', 'status', 'pwd'];
     
@@ -32,13 +30,6 @@ class User extends Authenticatable
         if ($input)
             $this->attributes['password'] = app('hash')->needsRehash($input) ? Hash::make($input) : $input;
     }
-    
-    
-    public function role()
-    {
-        return $this->belongsToMany(Role::class, 'role_user');
-    }
-    
     
     
 }

@@ -1,9 +1,10 @@
 @extends('layouts.admin')
 @section('content')
-@if(Gate::check('users_manage') || Gate::check('superadmin') || Gate::check('admin'))
+
+@if(Auth::user()->rl == '1' || Auth::user()->rl == '2' || Auth::user()->rl == '3' )
     <div style="margin-bottom: 10px;" class="row">
         <div class="col-lg-12">
-            <a class="btn btn-success" href="{{ route("admin.users.create") }}">
+            <a class="btn btn-success" href="{{ route("superadmin.create") }}">
                 {{ trans('global.add') }} Superadmin
             </a>
         </div>
@@ -71,16 +72,15 @@
                             </td>
 
                             <td>
-                                <a class="btn btn-xs btn-primary" href="{{ route('admin.users.show', $user->id) }}">
+                                <a class="btn btn-xs btn-primary" href="{{ route('superadmin.show', $user->id) }}">
                                     {{ trans('global.view') }}
                                 </a>
 
-                                <a class="btn btn-xs btn-info" href="{{ route('admin.users.edit', $user->id) }}">
+                                <a class="btn btn-xs btn-info" href="{{ route('superadmin.edit', $user->id) }}">
                                     {{ trans('global.edit') }}
                                 </a>
 
-                                <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
-                                    <input type="hidden" name="_method" value="DELETE">
+                                <form action="{{ route('superadmin.destroy', $user->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
                                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                     <input type="submit" class="btn btn-xs btn-danger" value="{{ trans('global.delete') }}">
                                 </form>
@@ -102,7 +102,7 @@
 <script>
     $(function () {
   let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
-@can('users_manage')
+
   let deleteButtonTrans = '{{ trans('global.datatables.delete') }}'
   let deleteButton = {
     text: deleteButtonTrans,
@@ -130,7 +130,6 @@
     }
   }
   dtButtons.push(deleteButton)
-@endcan
 
   $.extend(true, $.fn.dataTable.defaults, {
     order: [[ 1, 'desc' ]],

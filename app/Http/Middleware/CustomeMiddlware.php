@@ -20,12 +20,20 @@ class CustomeMiddlware
         list($controller, $action) = explode('@', $controller);
         
         if ((Auth::check())) {
-                    // die('hh');
+                    // dd($request->route('user'));
             $user = Auth::user();
             if ($user->rl == 1) {
                 return $next($request);
             } else {
-                if ($controller == 'UsersController') {
+                if ($controller == 'SuperadminController') {
+                    if ($request->route('user') != null ) {
+                        if ($user->id == $request->route('user')->created_by) {
+                            return $next($request);    
+                        } else {
+                            return redirect('/admin/users')->with('error','You din\'t have access.');        
+                        }
+                    }                    
+                } else if ($controller == 'AdminController') {
                     if ($request->route('user') != null ) {
                         if ($user->id == $request->route('user')->created_by) {
                             return $next($request);    

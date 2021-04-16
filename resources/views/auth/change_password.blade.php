@@ -12,6 +12,11 @@
         <form action="{{ route('auth.change_password') }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PATCH')
+            <div class="form-group ">
+                <label for="current_password">Username</label>
+                <input type="text" value="{{ Auth::user()->username . (Auth::user()->rl)}}" name="" class="form-control" readonly="">
+                
+            </div>
             <div class="form-group {{ $errors->has('current_password') ? 'has-error' : '' }}">
                 <label for="current_password">Current password *</label>
                 <input type="password" id="current_password" name="current_password" class="form-control" required>
